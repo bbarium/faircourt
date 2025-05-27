@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FairCourt - 校园场地公平预约系统</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-calendar-check"></i>
+                <span>FairCourt</span>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link active">首页</a>
+                <a href="#courts" class="nav-link">场地信息</a>
+                <a href="#booking" class="nav-link">预约申请</a>
+                <a href="#status" class="nav-link">申请状态</a>
+                <a href="#profile" class="nav-link">个人中心</a>
+            </div>
+            <div class="nav-auth">
+                <button class="btn btn-outline" id="login-btn">登录</button>
+                <button class="btn btn-primary" id="register-btn">注册</button>
+                <div class="user-menu" id="user-menu" style="display: none;">
+                    <span class="user-name" id="user-name"></span>
+                    <button class="btn btn-outline" id="logout-btn">退出</button>
+                </div>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+        <!-- 首页 -->
+        <section id="home" class="section active">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1>FairCourt</h1>
+                    <p class="hero-subtitle">校园场地公平预约系统</p>
+                    <p class="hero-description">
+                        告别"拼网速、熬夜抢订"，采用智能分配算法，结合信用评分机制，为学生提供公平、稳定的场地预约服务。
+                    </p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary btn-large" onclick="showSection('booking')">
+                            <i class="fas fa-calendar-plus"></i>
+                            开始预约
+                        </button>
+                        <button class="btn btn-outline btn-large" onclick="showSection('courts')">
+                            <i class="fas fa-info-circle"></i>
+                            了解更多
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-features">
+                    <div class="feature-card">
+                        <i class="fas fa-balance-scale"></i>
+                        <h3>公平分配</h3>
+                        <p>智能权重算法，动态调整优先级</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-star"></i>
+                        <h3>信用评分</h3>
+                        <p>防止恶意爽约，维护预约秩序</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-clock"></i>
+                        <h3>候补队列</h3>
+                        <p>自动递补空缺，提高成功率</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 场地信息 -->
+        <section id="courts" class="section">
+            <div class="container">
+                <h2 class="section-title">
+                    <i class="fas fa-building"></i>
+                    场地信息
+                </h2>
+                <div class="courts-grid" id="courts-grid">
+                    <!-- 场地卡片将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 预约申请 -->
+        <section id="booking" class="section">
+            <div class="container">
+                <h2 class="section-title">
+                    <i class="fas fa-calendar-plus"></i>
+                    预约申请
+                </h2>
+                
+                <!-- 日期选择 -->
+                <div class="booking-filters">
+                    <div class="filter-group">
+                        <label for="date-select">选择日期：</label>
+                        <input type="date" id="date-select" class="form-input">
+                    </div>
+                    <div class="filter-group">
+                        <label for="court-filter">筛选场地：</label>
+                        <select id="court-filter" class="form-select">
+                            <option value="">全部场地</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="loadTimeSlots()">
+                        <i class="fas fa-search"></i>
+                        查询
+                    </button>
+                </div>
+
+                <!-- 时间段列表 -->
+                <div class="timeslots-container">
+                    <div class="timeslots-header">
+                        <h3>可用时间段</h3>
+                        <div class="legend">
+                            <span class="legend-item available">
+                                <span class="legend-color"></span>
+                                可申请
+                            </span>
+                            <span class="legend-item pending">
+                                <span class="legend-color"></span>
+                                有申请
+                            </span>
+                            <span class="legend-item reserved">
+                                <span class="legend-color"></span>
+                                已预约
+                            </span>
+                        </div>
+                    </div>
+                    <div class="timeslots-grid" id="timeslots-grid">
+                        <!-- 时间段卡片将通过JavaScript动态加载 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 申请状态 -->
+        <section id="status" class="section">
+            <div class="container">
+                <h2 class="section-title">
+                    <i class="fas fa-list-check"></i>
+                    申请状态
+                </h2>
+                
+                <div class="status-tabs">
+                    <button class="tab-btn active" onclick="showStatusTab('applications')">我的申请</button>
+                    <button class="tab-btn" onclick="showStatusTab('reservations')">预约记录</button>
+                </div>
+
+                <div class="status-content">
+                    <!-- 申请列表 -->
+                    <div id="applications-tab" class="tab-content active">
+                        <div class="applications-list" id="applications-list">
+                            <!-- 申请卡片将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+
+                    <!-- 预约记录 -->
+                    <div id="reservations-tab" class="tab-content">
+                        <div class="reservations-list" id="reservations-list">
+                            <!-- 预约记录将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 个人中心 -->
+        <section id="profile" class="section">
+            <div class="container">
+                <h2 class="section-title">
+                    <i class="fas fa-user"></i>
+                    个人中心
+                </h2>
+                
+                <div class="profile-grid">
+                    <!-- 用户信息卡片 -->
+                    <div class="profile-card">
+                        <h3>
+                            <i class="fas fa-id-card"></i>
+                            基本信息
+                        </h3>
+                        <div class="profile-info" id="profile-info">
+                            <!-- 用户信息将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+
+                    <!-- 信用评分卡片 -->
+                    <div class="profile-card">
+                        <h3>
+                            <i class="fas fa-star"></i>
+                            信用评分
+                        </h3>
+                        <div class="credit-score" id="credit-score">
+                            <!-- 信用评分将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+
+                    <!-- 统计信息卡片 -->
+                    <div class="profile-card">
+                        <h3>
+                            <i class="fas fa-chart-bar"></i>
+                            统计信息
+                        </h3>
+                        <div class="stats-grid" id="stats-grid">
+                            <!-- 统计信息将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 登录模态框 -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>登录</h3>
+                <span class="close" onclick="closeModal('login-modal')">&times;</span>
+            </div>
+            <form id="login-form" class="modal-form">
+                <div class="form-group">
+                    <label for="login-student-id">学号</label>
+                    <input type="text" id="login-student-id" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">密码</label>
+                    <input type="password" id="login-password" class="form-input" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">登录</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>注册</h3>
+                <span class="close" onclick="closeModal('register-modal')">&times;</span>
+            </div>
+            <form id="register-form" class="modal-form">
+                <div class="form-group">
+                    <label for="register-student-id">学号</label>
+                    <input type="text" id="register-student-id" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-name">姓名</label>
+                    <input type="text" id="register-name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">邮箱</label>
+                    <input type="email" id="register-email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-phone">手机号</label>
+                    <input type="tel" id="register-phone" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">密码</label>
+                    <input type="password" id="register-password" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">确认密码</label>
+                    <input type="password" id="register-confirm-password" class="form-input" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">注册</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 消息提示 -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- JavaScript -->
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html> 
