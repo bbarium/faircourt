@@ -134,12 +134,14 @@ body {
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
+    background-color: #197547;
     color: white;
+    border-color: #197547;
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-dark);
+    background-color: #156c41;
+    border-color: #156c41;
 }
 
 .btn-outline {
@@ -370,11 +372,51 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
+.courts-header {
+    display: grid;
+    grid-template-columns: 100px repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.court-header-item {
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+}
+
+.timeslot-row {
+    display: grid;
+    grid-template-columns: 100px repeat(4, 1fr);
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.timeslot-time {
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .timeslots-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+}
+
+.timeslots-header h3 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
 }
 
 .legend {
@@ -396,7 +438,7 @@ body {
 }
 
 .legend-item.available .legend-color {
-    background-color: var(--success-color);
+    background-color: #197547;
 }
 
 .legend-item.pending .legend-color {
@@ -408,22 +450,26 @@ body {
 }
 
 .timeslots-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .timeslot-card {
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    padding: 1rem;
+    padding: 0.75rem;
     transition: var(--transition);
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100px;
 }
 
 .timeslot-card.available {
-    border-color: var(--success-color);
-    background-color: rgba(16, 185, 129, 0.05);
+    border-color: transparent;;
+    background-color: rgba(102, 163, 133, 0.05);
 }
 
 .timeslot-card.pending {
@@ -437,33 +483,18 @@ body {
     cursor: not-allowed;
 }
 
-.timeslot-card:hover:not(.reserved) {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
-
-.timeslot-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-.timeslot-time {
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
 .timeslot-status {
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     font-size: 0.75rem;
     font-weight: 500;
+    text-align: center;
+    margin-bottom: 0.5rem;
 }
 
 .status-available {
-    background-color: var(--success-color);
-    color: white;
+    background-color: rgba(102, 163, 133, 0.05);
+    color: #66a385;
 }
 
 .status-pending {
@@ -480,6 +511,77 @@ body {
     color: var(--text-secondary);
     font-size: 0.875rem;
     margin-bottom: 1rem;
+}
+
+.booking-sidebar {
+    width: 300px;
+    background-color: #f6f6f6;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    right: 20px;
+    top: 100px;
+    bottom: 20px;
+    height: calc(100vh - 120px);
+}
+
+.sidebar-header {
+    margin-bottom: 20px;
+}
+
+.sidebar-header h3 {
+    font-size: 18px;
+    color: #333;
+}
+
+.selected-slots {
+    flex: 1;
+    overflow-y: auto;
+    margin: 10px -20px;
+    padding: 0 20px;
+}
+
+.selected-slot-card {
+    background-color: #e6f0eb;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.selected-slot-venue {
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.selected-slot-time {
+    color: #666;
+    font-size: 14px;
+}
+
+.selected-slot-price {
+    color: #a23333;
+    font-weight: 500;
+}
+
+.booking-total {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.total-price {
+    color: #a23333;
+    font-size: 18px;
+    font-weight: 500;
 }
 
 /* 申请状态样式 */
