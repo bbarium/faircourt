@@ -5,11 +5,16 @@ let timeSlots = [];
 let applications = [];
 let reservations = [];
 
+// 选中的时间段
+let selectedSlots = [];
+
 // 页面初始化
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupEventListeners();
     setupDateInput();
+    initDateSelector();
+    renderTimeSlots();
 });
 
 // 应用初始化
@@ -234,6 +239,45 @@ async function loadTimeSlots() {
     }
 }
 
+// 初始化日期选择
+function initDateSelector() {
+    const dateSelector = document.querySelector('.date-selector');
+    if (!dateSelector) return;
+
+    // 清空现有按钮
+    dateSelector.innerHTML = '';
+
+    // 生成未来7天的日期按钮
+    for (let i = 0; i < 7; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() + i);
+        
+        const btn = document.createElement('button');
+        btn.className = 'date-btn' + (i === 0 ? ' active' : '');
+        btn.setAttribute('data-date', formatDate(date));
+        btn.textContent = formatDateShort(date);
+        
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedSlots = [];
+            renderTimeSlots();
+        });
+        
+        dateSelector.appendChild(btn);
+    }
+}
+
+// 格式化日期 YYYY-MM-DD
+function formatDate(date) {
+    return date.toISOString().split('T')[0];
+}
+
+// 格式化短日期 MM-DD
+function formatDateShort(date) {
+    return `${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+}
+
 // 渲染时间段列表
 function renderTimeSlots() {
     const container = document.getElementById('timeslots-grid');
@@ -244,31 +288,76 @@ function renderTimeSlots() {
         return;
     }
 
-    container.innerHTML = timeSlots.map(slot => {
-        const court = courts.find(c => c.id === slot.court_id);
-        const statusClass = getTimeSlotStatusClass(slot.status);
-        const statusText = getTimeSlotStatusText(slot.status);
-        
-        return `
-            <div class="timeslot-card ${statusClass}" onclick="handleTimeSlotClick(${slot.id})">
-                <div class="timeslot-header">
-                    <span class="timeslot-time">${utils.formatTime(slot.start_time)} - ${utils.formatTime(slot.end_time)}</span>
-                    <span class="timeslot-status status-${slot.status}">${statusText}</span>
-                </div>
-                <div class="timeslot-info">
-                    <div><i class="fas fa-building"></i> ${court ? court.name : '未知场地'}</div>
-                    <div><i class="fas fa-calendar"></i> ${utils.formatDate(slot.date)}</div>
-                    ${slot.applications_count ? `<div><i class="fas fa-users"></i> ${slot.applications_count} 人申请</div>` : ''}
-                </div>
-                ${slot.status === 'available' ? `
-                    <button class="btn btn-primary btn-full" onclick="event.stopPropagation(); applyForTimeSlot(${slot.id})">
-                        <i class="fas fa-plus"></i>
-                        申请预约
-                    </button>
-                ` : ''}
+    // 按时间段分组
+    const timeGroups = {};
+    timeSlots.forEach(slot => {
+        const timeKey = `${utils.formatTime(slot.start_time)} - ${utils.formatTime(slot.end_time)}`;
+        if (!timeGroups[timeKey]) {
+            timeGroups[timeKey] = [];
+        }
+        timeGroups[timeKey].push(slot);
+    });
+
+    // 生成场地表头
+    const courtsHeader = document.createElement('div');
+    courtsHeader.className = 'courts-header';
+    courtsHeader.innerHTML = `
+        <div class="court-header-item">时间</div>
+        ${courts.slice(0, 4).map(court => `
+            <div class="court-header-item">
+                ${court.name.replace('羽毛球场', '')}号场
             </div>
-        `;
-    }).join('');
+        `).join('')}
+    `;
+
+    // 生成时间段行
+    const timeSlotsContent = document.createElement('div');
+    timeSlotsContent.className = 'timeslots-grid';
+    timeSlotsContent.innerHTML = Object.entries(timeGroups)
+        .sort(([timeA], [timeB]) => timeA.localeCompare(timeB))
+        .map(([time, slots]) => {
+            return `
+                <div class="timeslot-row">
+                    <div class="timeslot-time">
+                        ${time}
+                    </div>
+                    ${courts.slice(0, 4).map(court => {
+                        const slot = slots.find(s => s.court_id === court.id);
+                        if (!slot) return `
+                            <div class="timeslot-card">
+                                <div class="timeslot-status">不可预约</div>
+                            </div>
+                        `;
+
+                        const statusClass = getTimeSlotStatusClass(slot.status);
+                        const statusText = getTimeSlotStatusText(slot.status);
+                        
+                        return `
+                            <div class="timeslot-card ${statusClass}" onclick="handleTimeSlotClick(${slot.id})">
+                                <div class="timeslot-status status-${slot.status}">
+                                    ${statusText}
+                                </div>
+                                ${slot.applications_count ? `
+                                    <div class="timeslot-info">
+                                        <div><i class="fas fa-users"></i> ${slot.applications_count} 人申请</div>
+                                    </div>
+                                ` : ''}
+                                ${slot.status === 'available' ? `
+                                    <button class="btn btn-primary btn-full" onclick="event.stopPropagation(); applyForTimeSlot(${slot.id})">
+                                        申请
+                                    </button>
+                                ` : ''}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }).join('');
+
+    // 清空并添加新内容
+    container.innerHTML = '';
+    container.appendChild(courtsHeader);
+    container.appendChild(timeSlotsContent);
 }
 
 // 获取时间段状态CSS类
@@ -291,6 +380,77 @@ function getTimeSlotStatusText(status) {
     return textMap[status] || status;
 }
 
+// 切换时间段选择状态
+function toggleSlotSelection(cell, slotData) {
+    const isSelected = cell.classList.contains('selected');
+    
+    if (isSelected) {
+        cell.classList.remove('selected');
+        selectedSlots = selectedSlots.filter(slot => 
+            !(slot.time === slotData.time && slot.courtId === slotData.courtId)
+        );
+    } else {
+        cell.classList.add('selected');
+        selectedSlots.push(slotData);
+    }
+    
+    updateSelectedSlots();
+}
+
+// 更新选中的时间段显示
+function updateSelectedSlots() {
+    const container = document.getElementById('selected-slots');
+    const totalPriceElement = document.querySelector('.total-price');
+    let totalPrice = 0;
+    
+    // 按场地分组
+    const groupedSlots = {};
+    selectedSlots.forEach(slot => {
+        const courtId = slot.courtId;
+        if (!groupedSlots[courtId]) {
+            groupedSlots[courtId] = [];
+        }
+        groupedSlots[courtId].push(slot);
+        totalPrice += slot.price;
+    });
+    
+    // 渲染选中的时间段
+    container.innerHTML = Object.entries(groupedSlots).map(([courtId, slots]) => `
+        <div class="selected-slot-card">
+            <div class="selected-slot-venue">羽毛球场${courtId}号</div>
+            ${slots.map(slot => `
+                <div class="selected-slot-time">
+                    <span>${slot.time}</span>
+                    <span class="selected-slot-price">¥${slot.price.toFixed(2)}</span>
+                </div>
+            `).join('')}
+            <div class="selected-slot-date">${getCurrentDate()} 共${slots.length}场</div>
+        </div>
+    `).join('');
+    
+    // 更新总价
+    totalPriceElement.textContent = `¥${totalPrice.toFixed(2)}`;
+}
+
+// 获取当前选择的日期
+function getCurrentDate() {
+    const activeDate = document.querySelector('.date-btn.active');
+    return activeDate ? activeDate.dataset.date : '2025-05-26';
+}
+
+function getStatusText(status) {
+    switch(status) {
+        case 'available':
+            return '可申请';
+        case 'pending':
+            return '有申请';
+        case 'reserved':
+            return '已预约';
+        default:
+            return '可申请';
+    }
+}
+
 // 处理时间段点击
 function handleTimeSlotClick(slotId) {
     const slot = timeSlots.find(s => s.id === slotId);
@@ -299,7 +459,7 @@ function handleTimeSlotClick(slotId) {
     if (slot.status === 'available') {
         applyForTimeSlot(slotId);
     } else {
-        showToast(`该时间段${getTimeSlotStatusText(slot.status)}`, 'info');
+        showToast(`该时间段${getStatusText(slot.status)}`, 'info');
     }
 }
 
