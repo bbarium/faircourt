@@ -120,6 +120,10 @@ class API {
         return this.get('/api/courts');
     }
 
+    async getCampusCourts(campusId) {
+        return this.get(`/api/courts/${campusId}`);
+    }
+
     async getAvailableTimeSlots(date, courtId = null) {
         let endpoint = `/api/timeslots/available?date=${date}`;
         if (courtId) {
