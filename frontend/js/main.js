@@ -1,5 +1,6 @@
 // 全局变量
 let currentSection = 'home';
+let currentCampus = null;
 let courts = [];
 let timeSlots = [];
 let applications = [];
@@ -173,36 +174,129 @@ async function loadCourts() {
     }
 }
 
+// 加载指定校区的场地
+async function loadCampusCourts(campusId) {
+    currentCampus = campusId;
+    const campusNames = {
+        'east': '东校区',
+        'south': '南校区',
+        'north': '北校区',
+        'zhuhai': '珠海校区',
+        'shenzhen': '深圳校区'
+    };
+
+    try {
+        // 显示加载中状态
+        document.querySelector('.campus-grid').style.display = 'none';
+        const courtsContainer = document.getElementById('campus-courts');
+        courtsContainer.style.display = 'block';
+        
+        // 更新校区名称
+        document.getElementById('selected-campus-name').textContent = campusNames[campusId] + '场地信息';
+        
+        // 显示加载动画
+        showLoading('courts-grid');
+        
+        // 模拟场地数据（实际项目中应该从后端获取）
+        const mockCourts = [
+            {
+                id: 1,
+                name: '羽毛球场1号',
+                description: '标准羽毛球场，适合训练和比赛使用',
+                location: campusNames[campusId],
+                capacity: '4-8人',
+                openTime: '09:00-22:00',
+                price: 30
+            },
+            {
+                id: 2,
+                name: '羽毛球场2号',
+                description: '标准羽毛球场，配备专业照明系统',
+                location: campusNames[campusId],
+                capacity: '4-8人',
+                openTime: '09:00-22:00',
+                price: 30
+            },
+            {
+                id: 3,
+                name: '羽毛球场3号',
+                description: '标准羽毛球场，配备观众席',
+                location: campusNames[campusId],
+                capacity: '4-8人',
+                openTime: '09:00-22:00',
+                price: 30
+            }
+        ];
+
+        // 使用模拟数据
+        courts = mockCourts;
+        renderCourts();
+    } catch (error) {
+        console.error('Failed to load campus courts:', error);
+        showError('courts-grid', '加载场地信息失败，请稍后重试');
+    }
+}
+
+// 返回校区选择
+function showCampusSelection() {
+    currentCampus = null;
+    document.querySelector('.campus-grid').style.display = 'grid';
+    document.getElementById('campus-courts').style.display = 'none';
+}
+
 // 渲染场地列表
 function renderCourts() {
-    const container = document.getElementById('courts-grid');
-    if (!container) return;
+    const courtsGrid = document.getElementById('courts-grid');
+    courtsGrid.innerHTML = '';
 
-    if (courts.length === 0) {
-        showEmpty(container, '暂无场地信息');
+    if (!courts || courts.length === 0) {
+        courtsGrid.innerHTML = '<div class="empty-state">暂无场地信息</div>';
         return;
     }
 
-    container.innerHTML = courts.map(court => `
-        <div class="court-card">
-            <h3>${court.name}</h3>
-            <p>${court.description || '暂无描述'}</p>
+    courts.forEach(court => {
+        const courtCard = document.createElement('div');
+        courtCard.className = 'court-card';
+        courtCard.innerHTML = `
+            <div class="court-header">
+                <h4>${court.name}</h4>
+                <span class="court-price">¥${court.price}/小时</span>
+            </div>
             <div class="court-info">
-                <div class="info-item">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>${court.location || '位置待定'}</span>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-users"></i>
-                    <span>容量: ${court.capacity || '未知'}</span>
-                </div>
-                <div class="info-item">
-                    <i class="fas fa-tag"></i>
-                    <span>类型: ${court.type || '通用'}</span>
+                <p class="court-description">${court.description}</p>
+                <div class="court-details">
+                    <span><i class="fas fa-map-marker-alt"></i> ${court.location}</span>
+                    <span><i class="fas fa-users"></i> ${court.capacity}</span>
+                    <span><i class="fas fa-clock"></i> ${court.openTime}</span>
                 </div>
             </div>
-        </div>
-    `).join('');
+            <button class="btn btn-primary" onclick="showBookingSection('${court.id}')">
+                立即预约
+            </button>
+        `;
+        courtsGrid.appendChild(courtCard);
+    });
+}
+
+// 显示预约部分
+function showBookingSection(courtId) {
+    // 切换到预约页面
+    showSection('booking');
+    
+    // 选中对应的场地
+    const courtFilter = document.getElementById('court-filter');
+    if (courtFilter) {
+        courtFilter.value = courtId;
+    }
+    
+    // 设置日期为今天
+    const dateSelect = document.getElementById('date-select');
+    if (dateSelect) {
+        dateSelect.value = utils.getTodayString();
+    }
+    
+    // 加载时间段
+    loadTimeSlots();
 }
 
 // 更新场地筛选器

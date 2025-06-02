@@ -228,49 +228,48 @@ function removeToast(toastId) {
     }
 }
 
-// 事件监听器
+// 设置事件监听器
 document.addEventListener('DOMContentLoaded', function() {
-    // 登录按钮
+    // 登录按钮点击事件
     const loginBtn = document.getElementById('login-btn');
     if (loginBtn) {
-        loginBtn.addEventListener('click', () => openModal('login-modal'));
+        loginBtn.addEventListener('click', () => {
+            openModal('login-modal');
+        });
     }
 
-    // 注册按钮
+    // 注册按钮点击事件
     const registerBtn = document.getElementById('register-btn');
     if (registerBtn) {
-        registerBtn.addEventListener('click', () => openModal('register-modal'));
+        registerBtn.addEventListener('click', () => {
+            openModal('register-modal');
+        });
     }
 
-    // 退出按钮
+    // 退出按钮点击事件
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => authManager.logout());
+        logoutBtn.addEventListener('click', () => {
+            authManager.logout();
+        });
     }
 
-    // 登录表单
+    // 登录表单提交事件
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const studentId = document.getElementById('login-student-id').value;
             const password = document.getElementById('login-password').value;
-            
-            if (!studentId || !password) {
-                showToast('请填写完整的登录信息', 'error');
-                return;
-            }
-
             await authManager.login(studentId, password);
         });
     }
 
-    // 注册表单
+    // 注册表单提交事件
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const formData = {
                 student_id: document.getElementById('register-student-id').value,
                 name: document.getElementById('register-name').value,
@@ -279,28 +278,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 password: document.getElementById('register-password').value,
                 confirm_password: document.getElementById('register-confirm-password').value
             };
-
             await authManager.register(formData);
         });
     }
 
-    // 模态框点击外部关闭
-    document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal')) {
-            e.target.classList.remove('show');
-            e.target.style.display = 'none';
-        }
-    });
-
-    // ESC键关闭模态框
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            const modals = document.querySelectorAll('.modal.show');
-            modals.forEach(modal => {
-                modal.classList.remove('show');
-                modal.style.display = 'none';
-            });
-        }
+    // 模态框关闭按钮事件
+    document.querySelectorAll('.close').forEach(closeBtn => {
+        closeBtn.addEventListener('click', () => {
+            const modal = closeBtn.closest('.modal');
+            if (modal) {
+                closeModal(modal.id);
+            }
+        });
     });
 });
 
