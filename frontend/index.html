@@ -85,10 +85,67 @@
             <div class="container">
                 <h2 class="section-title">
                     <i class="fas fa-building"></i>
-                    场地信息
+                    请选择您的校区
                 </h2>
-                <div class="courts-grid" id="courts-grid">
-                    <!-- 场地卡片将通过JavaScript动态加载 -->
+                <div class="campus-grid">
+                    <div class="campus-card" onclick="loadCampusCourts('east')">
+                        <div class="campus-image">
+                            <img src="images/east.jpg" alt="东校区">
+                        </div>
+                        <div class="campus-info">
+                            <h3>东校区</h3>
+                            <p>位于广州市番禺区大学城外环西路132号</p>
+                        </div>
+                    </div>
+                    <div class="campus-card" onclick="loadCampusCourts('south')">
+                        <div class="campus-image">
+                            <img src="images/south.png" alt="南校区">
+                        </div>
+                        <div class="campus-info">
+                            <h3>南校区</h3>
+                            <p>位于广州市海珠区新港西路135号</p>
+                        </div>
+                    </div>
+                    <div class="campus-card" onclick="loadCampusCourts('north')">
+                        <div class="campus-image">
+                            <img src="images/north.jpg" alt="北校区">
+                        </div>
+                        <div class="campus-info">
+                            <h3>北校区</h3>
+                            <p>位于广州市越秀区中山二路74号</p>
+                        </div>
+                    </div>
+                    <div class="campus-card" onclick="loadCampusCourts('zhuhai')">
+                        <div class="campus-image">
+                            <img src="images/zhuhai.jpg" alt="珠海校区">
+                        </div>
+                        <div class="campus-info">
+                            <h3>珠海校区</h3>
+                            <p>位于珠海市香洲区唐家湾中山大学路2号</p>
+                        </div>
+                    </div>
+                    <div class="campus-card" onclick="loadCampusCourts('shenzhen')">
+                        <div class="campus-image">
+                            <img src="images/shenzhen.jpg" alt="深圳校区">
+                        </div>
+                        <div class="campus-info">
+                            <h3>深圳校区</h3>
+                            <p>位于深圳市光明区公常路66号</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="campus-courts" class="courts-container" style="display: none;">
+                    <div class="courts-header">
+                        <h3 id="selected-campus-name"></h3>
+                        <button class="btn btn-outline" onclick="showCampusSelection()">
+                            <i class="fas fa-arrow-left"></i>
+                            返回校区选择
+                        </button>
+                    </div>
+                    <div id="courts-grid" class="courts-grid">
+                        <!-- 场地列表将通过JavaScript动态加载 -->
+                    </div>
                 </div>
             </div>
         </section>
